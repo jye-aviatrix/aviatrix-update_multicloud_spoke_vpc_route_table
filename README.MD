@@ -16,7 +16,7 @@ This PowerShell script is indented to solve following problem:
     - AVIATRIX_USERNAME
     - AVIATRIX_PASSWORD
 - The provided credential need to have write permission to the Access Account for the Spoke Gateway
-- Run PowerShell
+- Run PowerShell (Tested in PowerShell Core 7.4.6, will not work in PowerShell 5)
 - Load PowerShell module by running
     ```import-Module .\main.psm1 -force```
 - Run PowerShell command:
