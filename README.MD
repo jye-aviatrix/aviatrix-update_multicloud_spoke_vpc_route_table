@@ -1,5 +1,5 @@
 # What does the script solve
-This PowerShell script is indented to solve following problem:
+This PowerShell/Python script is indented to solve following problem:
 1. When new subnet/route table added to existing VPC, the route table won't automatically be updated point to Aviatrix Spoke Gateway.
 2. The normal procedure is to detach the Spoke Gateway from Transit Gateway, then re-attach the Spoke Gateway to Transit Gateway, this could cause an outage for the workload running on the VPC when it need to reach resources outside of VPC
 3. The script is intended to perform following
@@ -16,11 +16,14 @@ This PowerShell script is indented to solve following problem:
     - AVIATRIX_USERNAME
     - AVIATRIX_PASSWORD
 - The provided credential need to have write permission to the Access Account for the Spoke Gateway
-- Run PowerShell (Tested in PowerShell Core 7.4.6, will not work in PowerShell 5)
-- Load PowerShell module by running
-    ```import-Module .\main.psm1 -force```
-- Run PowerShell command:
-    ```Update-SpokeRouteTable```
+
+## Run in PowerShell
+- If you prefer PowerShell
+    - Run PowerShell (Tested in PowerShell Core 7.4.6, will not work in PowerShell 5)
+    - Load PowerShell module by running
+        ```import-Module .\main.psm1 -force```
+    - Run PowerShell command:
+        ```Update-SpokeRouteTable```
 
 - Example1
 Spoke1 VPC added CIDR range '10.10.11.0/24' and '10.10.12.0/24'
@@ -47,6 +50,13 @@ When route table rt1 (rtb-094020a3d1c80a926) disassociated from subnet1, then re
     Success to add VPC/VNet route tables [] and delete route tables ['rtb-094020a3d1c80a926'].
     ```
 Route table must be deleted to trigger above message, dis-associate route table from subnet won't be sufficient.
+
+
+## Run in Python
+- If you prefer python
+    - Tested in Python 3.12.3
+    - Run following command:
+        ```python3 update-route-table.py```
 
 # Note
 - Out of band changes to Route Table will not be touched by the script.
