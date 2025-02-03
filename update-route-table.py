@@ -83,24 +83,30 @@ def main():
     for spoke in spoke_gw_list:
         if spoke.get("name", "") == gw_name:
             print(f'Gateway found: {spoke["name"]}\n')
-            try:
-                response = s.post(url=f'https://{controller_ip}/v1/api',
-                                  data={'action': 'update_encrypted_spoke_vpc_cidrs',
-                                        'CID': cid,
-                                        'gateway_name': spoke["name"]},
-                                  verify=ssl_verify,
-                                  timeout=(TCP_TIMEOUT, HTTP_TIMEOUT))
-                response.raise_for_status()
-                if response.json() and response.json()["return"] == True:
-                    resp = response.json().get("results", [])
-                    print(f"{resp}\n")
+            gateway_found = True
 
-            except requests.exceptions.RequestException as e:
-                logging.error(e)
-                return
             if spoke.get("transit_gw_name", "") != "":
                 print(f'Gateway: {spoke["name"]} attached to the transit: {spoke["transit_gw_name"]}\n')
+
                 try:
+                    print("Updating spoke VPC CIDR...")
+                    response = s.post(url=f'https://{controller_ip}/v1/api',
+                                    data={'action': 'update_encrypted_spoke_vpc_cidrs',
+                                            'CID': cid,
+                                            'gateway_name': spoke["name"]},
+                                    verify=ssl_verify,
+                                    timeout=(TCP_TIMEOUT, HTTP_TIMEOUT))
+                    response.raise_for_status()
+                    if response.json() and response.json()["return"] == True:
+                        resp = response.json().get("results", [])
+                        print(f"{resp}\n")
+
+                except requests.exceptions.RequestException as e:
+                    logging.error(e)
+                    return
+
+                try:
+                    print("Updating spoke vpc route table...")
                     response = s.post(f"https://{controller_ip}/v1/api",
                                     data={'action': 'update_multicloud_spoke_vpc_route_table',
                                             'CID': cid,
@@ -108,15 +114,18 @@ def main():
                                     verify=ssl_verify,
                                     timeout=(TCP_TIMEOUT, HTTP_TIMEOUT))
                     response.raise_for_status()
+                    print(response.text)
 
                 except requests.exceptions.RequestException as e:
                     logging.error(e)
                     return
-
-            print(response.text)
-            gateway_found = True
-            s.close()
-            break
+            else:
+                print(f'Gateway: {spoke["name"]} is NOT attached to any transit\n')
+                return
+            
+        
+        s.close()
+        break
     if not gateway_found:
         print(f'No Gateway found with name {gw_name} or not attached to the Transit.')
 
